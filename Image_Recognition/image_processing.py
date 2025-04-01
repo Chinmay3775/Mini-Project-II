@@ -1,50 +1,36 @@
 import cv2
 import pytesseract
 import numpy as np
-import matplotlib.pyplot as plt
 from PIL import Image
 
-# Set Tesseract OCR Path (Windows Users)
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-
-def show_image(title, img):
-    """ Display an image using Matplotlib. """
-    plt.figure(figsize=(6, 6))
-    plt.imshow(img, cmap='gray')
-    plt.title(title)
-    plt.axis("off")
-    plt.show()
-
 def preprocess_image(image_path):
-    """ Load & preprocess the image for OCR """
-    img = cv2.imread(image_path)
-    
-    # Convert to grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite("gray.jpg", gray)
+    """ Load & preprocess the image for OCR with enhanced techniques """
+    try:
+        img = cv2.imread(image_path)
+        if img is None:
+            raise FileNotFoundError(f"Error: Unable to load image {image_path}")
+        
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Apply Otsu's Thresholding (better than Adaptive Thresholding)
-    _, processed = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    cv2.imwrite("thresholded.jpg", processed)
+        # Apply Gaussian Blur before thresholding
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    # Apply median blur to remove noise
-    denoised = cv2.medianBlur(processed, 3)
-    cv2.imwrite("denoised.jpg", denoised)
+        # Adaptive thresholding for better results
+        processed = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
-    return denoised  # Return denoised image
+        return processed
+
+    except Exception as e:
+        print(f"Error processing image: {e}")
+        return None
 
 def extract_text(image_path):
-    """ Extract text from the preprocessed image """
+    """ Extract text with OCR """
     processed_img = preprocess_image(image_path)
+    if processed_img is None:
+        return ""
 
-    # Run OCR with improved settings
+    # Run OCR with optimized settings
     text = pytesseract.image_to_string(processed_img, config="--psm 6 --oem 3")
-    
-    print("Raw OCR Output:\n", repr(text))  # Debugging output
+
     return text.strip()
-
-if __name__ == "__main__":
-    image_path = "imageText1.jpg"  # Use your actual image
-    extracted_text = extract_text(image_path)
-
-    print("\nExtracted Text:\n", extracted_text)
