@@ -3,6 +3,12 @@ import numpy as np
 import networkx as nx
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
+from transformers import pipeline
+
+# Initialize the summarization pipeline
+# summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+def load_embedder():
+    return SentenceTransformer('all-MiniLM-L6-v2')
 
 def preprocess_text(text):
     """Splits text into sentences while maintaining structure and meaning."""
@@ -24,23 +30,19 @@ def determine_flashcard_count(text):
         return 10
 
 def generate_flashcards(text):
-    """Generates clear, concise, and meaningful flashcards (2–3 sentence max each)."""
     num_flashcards = determine_flashcard_count(text)
     sentences = preprocess_text(text)
 
     if not sentences:
         return {}
 
-    # Generate sentence embeddings
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+    model = load_embedder()
     embeddings = model.encode(sentences)
     similarity_matrix = cosine_similarity(embeddings)
-    
-    # TextRank graph
+
     graph = nx.from_numpy_array(similarity_matrix)
     scores = nx.pagerank(graph)
 
-    # Sort sentences by score
     ranked_sentences = sorted(((scores[i], s) for i, s in enumerate(sentences)), reverse=True)
 
     selected = []
@@ -51,13 +53,18 @@ def generate_flashcards(text):
             break
         cleaned = sentence.strip()
         if cleaned and cleaned not in used_phrases:
-            # Limit to 2–3 short sentences
             trimmed = '. '.join(cleaned.split('. ')[:3]).strip()
             if not trimmed.endswith('.'):
                 trimmed += '.'
             selected.append(trimmed)
             used_phrases.add(trimmed)
 
-    # Format as numbered flashcards
-    flashcards = {f"Point {i+1}": point for i, point in enumerate(selected)}
+    # Use selected sentences directly (no summarization)
+    summarized_flashcards = selected
+    flashcards = {f"Point {i+1}": point for i, point in enumerate(summarized_flashcards)}
     return flashcards
+
+
+def get_flashcard_word_count(flashcards):
+    """Counts the total number of words in all flashcards."""
+    return sum(len(card.split()) for card in flashcards.values())
