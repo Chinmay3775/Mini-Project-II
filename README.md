@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://i.imgur.com/NZkRxpg.png" alt="Project Banner" width="850"/>
+  <img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Featured_image_2.width-1300.format-webp.webp" alt="Project Banner" width="850"/>
   <h1>AI-Powered Vocabulary Learning Tool</h1>
   <p><i>Enhance vocabulary through interactive image-recognition flashcards</i></p>
 </div>
@@ -28,7 +28,7 @@
 </div>
 
 <div align="center">
-  <img src="https://i.imgur.com/XrEAaoj.png" alt="Application Screenshots" width="750"/>
+  <img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/original_images/Keyword_Planner.gif" alt="Application Screenshots" width="750"/>
 </div>
 
 <h2 id="overview">🧠 Overview</h2>
@@ -36,7 +36,7 @@
 **Mini-Project-II** is an AI-powered educational tool designed to enhance vocabulary learning through interactive flashcards. By leveraging image recognition and text-to-speech technologies, the application provides an engaging platform for users to associate words with images and hear their pronunciations, facilitating a multisensory learning experience.
 
 <div align="center">
-  <img src="https://i.imgur.com/i5c0aGn.png" alt="How It Works" width="650"/>
+  <img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/image_rec_ml.max-1300x1300.png" alt="How It Works" width="650"/>
 </div>
 
 <h2 id="features">🚀 Features</h2>
@@ -46,14 +46,14 @@
     <td width="50%">
       <h3 align="center">📷 Image Recognition</h3>
       <div align="center">
-        <img src="https://i.imgur.com/TrHQpLg.png" alt="Image Recognition" width="300"/>
+        <img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/ML_Vision_API.max-2000x2000.jpg" alt="Image Recognition" width="300"/>
       </div>
       <p align="center">Upload images to identify and extract relevant vocabulary</p>
     </td>
     <td width="50%">
       <h3 align="center">🔊 Text-to-Speech</h3>
       <div align="center">
-        <img src="https://i.imgur.com/WS2uDgJ.png" alt="Text to Speech" width="300"/>
+        <img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Text-to-Speech_hero_1.max-1300x1300.jpg" alt="Text to Speech" width="300"/>
       </div>
       <p align="center">Hear pronunciations using Google TTS technology</p>
     </td>
@@ -62,14 +62,14 @@
     <td width="50%">
       <h3 align="center">🃏 Interactive Flashcards</h3>
       <div align="center">
-        <img src="https://i.imgur.com/4nNFn1e.png" alt="Flashcards" width="300"/>
+        <img src="https://storage.googleapis.com/planet.gov/assets/content/uploads/google/interactives/7ZXY1TCQO8qHpxbIEuFLsA.width-1600.format-webp.webp" alt="Flashcards" width="300"/>
       </div>
       <p align="center">Learn vocabulary using visual + audio learning cards</p>
     </td>
     <td width="50%">
       <h3 align="center">💡 User-Friendly Interface</h3>
       <div align="center">
-        <img src="https://i.imgur.com/yl75GKw.png" alt="Interface" width="300"/>
+        <img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Screen_Shot_2019-06-18_at_9.15.55_AM.max-1300x1300.png" alt="Interface" width="300"/>
       </div>
       <p align="center">Clean and intuitive web design built with Flask</p>
     </td>
@@ -79,7 +79,7 @@
 <h2 id="demo">📱 Demo</h2>
 
 <div align="center">
-  <img src="https://i.imgur.com/m5vTZQm.gif" alt="Application Demo" width="650"/>
+  <img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/original_images/tenor_1.gif" alt="Application Demo" width="650"/>
   <p><i>Demo of the application workflow: Upload Image → Generate Flashcard → Learn Vocabulary</i></p>
 </div>
 
@@ -102,14 +102,14 @@ Mini-Project-II/
 ```
 
 <div align="center">
-  <img src="https://i.imgur.com/dA51BhC.png" alt="Architecture Diagram" width="650"/>
+  <img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/architecture3.max-2000x2000.jpg" alt="Architecture Diagram" width="650"/>
   <p><i>System Architecture Diagram</i></p>
 </div>
 
 <h2 id="installation">⚙️ Installation & Setup</h2>
 
 <div align="center">
-  <img src="https://i.imgur.com/Npsfdm9.png" alt="Installation Steps" width="650"/>
+  <img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Application_modernization_is_a_journey.max-1100x1100.jpg" alt="Installation Steps" width="650"/>
 </div>
 
 1. **Clone the Repository**
@@ -142,9 +142,9 @@ Open your browser and go to `http://localhost:5000`
 <div align="center">
   <table>
     <tr>
-      <td><img src="https://i.imgur.com/l37NSXT.png" alt="Step 1" width="200"/></td>
-      <td><img src="https://i.imgur.com/Yk7yQ0r.png" alt="Step 2" width="200"/></td>
-      <td><img src="https://i.imgur.com/0B4yigL.png" alt="Step 3" width="200"/></td>
+      <td><img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Photos_icon.max-600x600.jpg" alt="Step 1" width="200"/></td>
+      <td><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1_Hyrr3C1CqpKoGBTa9u0cJQ.max-1200x1200.jpg" alt="Step 2" width="200"/></td>
+      <td><img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Studio_IAP_hero.max-1000x1000.jpg" alt="Step 3" width="200"/></td>
     </tr>
     <tr>
       <td align="center">1. Upload an image</td>
@@ -157,7 +157,7 @@ Open your browser and go to `http://localhost:5000`
 <h2 id="future-improvements">🌱 Future Improvements</h2>
 
 <div align="center">
-  <img src="https://i.imgur.com/QVHtlzc.png" alt="Future Roadmap" width="650"/>
+  <img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/ai_ml_2019_1iNi6qf.max-2000x2000.jpg" alt="Future Roadmap" width="650"/>
 </div>
 
 <table>
@@ -196,7 +196,7 @@ This project is licensed under the [MIT License](LICENSE).
 <h2 id="author">👤 Author</h2>
 
 <div align="center">
-  <img src="https://i.imgur.com/SZClohf.png" alt="Author" width="150" style="border-radius:50%"/>
+  <img src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Profile_photos.max-1100x1100.jpg" alt="Author" width="150" style="border-radius:50%"/>
   <h3>Chinmay Keripale</h3>
   <p>Software Engineer & AI Enthusiast</p>
   <a href="https://github.com/Chinmay3775">
