@@ -1,6 +1,6 @@
 import streamlit as st
 from flashcard import generate_flashcards, get_flashcard_word_count
-from image_processing import extract_text
+from image_processing_updated import extract_text_advanced, extract_text_with_postprocessing
 from text_to_speech import text_to_speech
 import random
 
@@ -122,7 +122,8 @@ with col1:
                         image_path = f"temp_{uploaded_file.name}"
                         with open(image_path, "wb") as f:
                             f.write(uploaded_file.getbuffer())
-                        extracted_text = extract_text(image_path)
+                        # Use advanced preprocessing and post-processing
+                        extracted_text = extract_text_with_postprocessing(image_path)
                         flashcards = generate_flashcards(extracted_text)
                         if flashcards is not None:
                             st.session_state.flashcards = flashcards
