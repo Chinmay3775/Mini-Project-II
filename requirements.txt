@@ -1,0 +1,17 @@
+streamlit
+gtts
+pytesseract
+opencv-python
+numpy
+pillow
+scikit-image
+imutils
+keybert
+spacy
+sentence-transformers
+scikit-learn
+transformers
+easyocr
+langdetect
+textblob
+layoutparser
