@@ -232,35 +232,146 @@ import os
 st.set_page_config(
     page_title="Smart Flashcard Generator",
     page_icon="🧠",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+# Custom CSS for flip cards
+st.markdown("""
+<style>
+.stApp {
+    background: linear-gradient(to top left, #0f172a, #1e293b, #334155);
+    color: #e2e8f0;
+}
+
+.flip-card {
+    background-color: transparent;
+    width: 100%;
+    height: 250px;
+    perspective: 1000px;
+    margin: 20px 0;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.card-flipped .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    padding: 25px;
+    box-sizing: border-box;
+}
+
+.flip-card-front {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.flip-card-back {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    transform: rotateY(180deg);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    overflow-y: auto;
+}
+
+.progress-container {
+    width: 100%;
+    height: 8px;
+    background-color: #475569;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+}
+
+.stats-container {
+    background: rgba(30, 41, 59, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+    color: #cbd5e1;
+}
+
+.stat-value {
+    color: #60a5fa;
+    font-weight: bold;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # Initialize session state
 if 'flashcards' not in st.session_state:
     st.session_state.flashcards = {}
 if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
+if 'card_flipped' not in st.session_state:
+    st.session_state.card_flipped = False
+if 'cards_generated' not in st.session_state:
+    st.session_state.cards_generated = 0
+if 'texts_processed' not in st.session_state:
+    st.session_state.texts_processed = 0
 
 def clean_text(text):
     """Clean and normalize text"""
     text = re.sub(r'\s+', ' ', text.strip())
+    text = re.sub(r'["""]', '', text)
     return text
 
-def simple_generate_flashcards(text, max_cards=10):
-    """Generate flashcards using simple text processing"""
+def generate_flashcards(text, max_cards=10):
+    """Generate flashcards with improved logic"""
     text = clean_text(text)
     
-    # Split by sentences
+    # Split by sentences and clean
     sentences = re.split(r'[.!?]+', text)
-    sentences = [s.strip() for s in sentences if len(s.strip()) > 15]
+    sentences = [s.strip() for s in sentences if len(s.strip()) > 20]
     
-    # Take meaningful sentences
-    sentences = sentences[:max_cards]
+    # Filter out very short or very long sentences
+    good_sentences = []
+    for sentence in sentences:
+        word_count = len(sentence.split())
+        if 5 <= word_count <= 30:  # Good length for flashcards
+            good_sentences.append(sentence)
     
-    return {f"Card {i+1}": sentence + "." for i, sentence in enumerate(sentences)}
+    # Take the best sentences
+    good_sentences = good_sentences[:max_cards]
+    
+    return {f"Point {i+1}": sentence + "." for i, sentence in enumerate(good_sentences)}
 
 def text_to_speech(text):
-    """Convert text to speech and return audio file"""
+    """Convert text to speech"""
     try:
         tts = gTTS(text=text, lang="en")
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
@@ -271,30 +382,58 @@ def text_to_speech(text):
         return None
 
 # Header
-st.title("🧠 Smart Flashcard Generator")
+st.markdown('<h1 style="text-align: center; color: #60a5fa; margin-bottom: 30px;">🧠 Smart Flashcard Generator</h1>', unsafe_allow_html=True)
 
-# Layout
-col1, col2 = st.columns([1, 2])
+# Sidebar
+with st.sidebar:
+    st.markdown("## ⚙️ Settings")
+    
+    st.markdown("### 📊 Statistics")
+    st.markdown(f"""
+    <div class="stats-container">
+        <div class="stat-item">
+            <span>Cards Generated:</span>
+            <span class="stat-value">{st.session_state.cards_generated}</span>
+        </div>
+        <div class="stat-item">
+            <span>Texts Processed:</span>
+            <span class="stat-value">{st.session_state.texts_processed}</span>
+        </div>
+        <div class="stat-item">
+            <span>Current Cards:</span>
+            <span class="stat-value">{len(st.session_state.flashcards)}</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Main layout
+col1, col2 = st.columns([2, 3])
 
 with col1:
-    st.subheader("Input")
+    st.markdown("### 📝 Input Your Text")
     
-    with st.form("text_form"):
+    with st.form("flashcard_form"):
         text_input = st.text_area(
             "Enter your study material:",
             height=200,
-            placeholder="Paste your text here..."
+            placeholder="Paste your study material here..."
         )
         
-        num_cards = st.slider("Number of cards:", 1, 15, 8)
+        num_cards = st.slider("Number of flashcards:", 3, 15, 8)
         
-        if st.form_submit_button("Generate Flashcards"):
+        if st.form_submit_button("🚀 Generate Flashcards", use_container_width=True):
             if text_input.strip():
                 with st.spinner("Generating flashcards..."):
-                    flashcards = simple_generate_flashcards(text_input, num_cards)
-                    st.session_state.flashcards = flashcards
-                    st.session_state.current_index = 0
-                    st.success(f"Generated {len(flashcards)} flashcards!")
+                    flashcards = generate_flashcards(text_input, num_cards)
+                    if flashcards:
+                        st.session_state.flashcards = flashcards
+                        st.session_state.current_index = 0
+                        st.session_state.card_flipped = False
+                        st.session_state.cards_generated += len(flashcards)
+                        st.session_state.texts_processed += 1
+                        st.success(f"Generated {len(flashcards)} flashcards!")
+                    else:
+                        st.error("Could not generate flashcards from this text.")
             else:
                 st.warning("Please enter some text!")
 
@@ -306,37 +445,45 @@ with col2:
         keys = list(flashcards.keys())
         values = list(flashcards.values())
         
-        # Progress
+        # Progress bar
         progress = (current_index + 1) / len(flashcards)
-        st.progress(progress, text=f"Card {current_index + 1} of {len(flashcards)}")
-        
-        # Display card
         st.markdown(f"""
-        <div style="
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin: 20px 0;
-            min-height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        ">
-            <div style="font-size: 1.2em; line-height: 1.6;">
-                {values[current_index]}
+        <div class="progress-container">
+            <div class="progress-fill" style="width: {progress * 100}%;"></div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Flip card
+        flip_class = "card-flipped" if st.session_state.card_flipped else ""
+        
+        st.markdown(f"""
+        <div class="flip-card {flip_class}">
+            <div class="flip-card-inner">
+                <div class="flip-card-front">
+                    {keys[current_index]}
+                </div>
+                <div class="flip-card-back">
+                    {values[current_index]}
+                </div>
             </div>
+        </div>
+        <div style="text-align: center; color: #94a3b8; margin-top: 10px;">
+            {current_index + 1} / {len(flashcards)}
         </div>
         """, unsafe_allow_html=True)
         
         # Controls
-        col_prev, col_audio, col_next = st.columns([1, 1, 1])
+        col_prev, col_flip, col_audio, col_next = st.columns([1, 1, 1, 1])
         
         with col_prev:
             if st.button("⬅️ Previous", disabled=current_index == 0):
                 st.session_state.current_index -= 1
+                st.session_state.card_flipped = False
+                st.rerun()
+        
+        with col_flip:
+            if st.button("🔄 Flip"):
+                st.session_state.card_flipped = not st.session_state.card_flipped
                 st.rerun()
         
         with col_audio:
@@ -345,21 +492,39 @@ with col2:
                 if audio_file and os.path.exists(audio_file):
                     with open(audio_file, "rb") as f:
                         st.audio(f.read())
-                    os.unlink(audio_file)  # Clean up temp file
+                    os.unlink(audio_file)
         
         with col_next:
             if st.button("Next ➡️", disabled=current_index == len(flashcards) - 1):
                 st.session_state.current_index += 1
+                st.session_state.card_flipped = False
                 st.rerun()
                 
-        # Stats
-        with st.sidebar:
-            st.metric("Total Cards", len(flashcards))
-            st.metric("Current Position", current_index + 1)
-            st.metric("Words in Current Card", len(values[current_index].split()))
-            
     else:
-        st.info("👈 Enter text to generate flashcards")
+        st.markdown("""
+        <div style="
+            text-align: center;
+            padding: 60px 40px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 2px dashed #64748b;
+            border-radius: 15px;
+            margin-top: 40px;
+        ">
+            <h3 style="color: #60a5fa; margin-bottom: 15px;">No Flashcards Yet</h3>
+            <p style="color: #cbd5e1;">Enter your study material on the left to generate AI-powered flashcards.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-st.markdown("---")
-st.caption("Smart Flashcard Generator")
+# Footer
+st.markdown("""
+<div style="
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid #334155;
+    color: #94a3b8;
+">
+    Smart Flashcard Generator • Powered by AI<br>
+    © Your Name Here
+</div>
+""", unsafe_allow_html=True)
