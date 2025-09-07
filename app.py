@@ -219,23 +219,147 @@
 #     </div>
 # """, unsafe_allow_html=True)
 
+
+###############################################################################
+
 import streamlit as st
+import re
+from gtts import gTTS
+import tempfile
+import os
 
-st.title("Flashcard Generator Test")
-st.write("If you can see this, the basic deployment is working!")
+# Page configuration
+st.set_page_config(
+    page_title="Smart Flashcard Generator",
+    page_icon="🧠",
+    layout="wide"
+)
 
-text_input = st.text_area("Enter some text:", "This is a test sentence.")
+# Initialize session state
+if 'flashcards' not in st.session_state:
+    st.session_state.flashcards = {}
+if 'current_index' not in st.session_state:
+    st.session_state.current_index = 0
 
-if st.button("Generate Simple Cards"):
-    if text_input:
-        # Very simple splitting
-        sentences = text_input.split('.')
-        sentences = [s.strip() for s in sentences if s.strip()]
+def clean_text(text):
+    """Clean and normalize text"""
+    text = re.sub(r'\s+', ' ', text.strip())
+    return text
+
+def simple_generate_flashcards(text, max_cards=10):
+    """Generate flashcards using simple text processing"""
+    text = clean_text(text)
+    
+    # Split by sentences
+    sentences = re.split(r'[.!?]+', text)
+    sentences = [s.strip() for s in sentences if len(s.strip()) > 15]
+    
+    # Take meaningful sentences
+    sentences = sentences[:max_cards]
+    
+    return {f"Card {i+1}": sentence + "." for i, sentence in enumerate(sentences)}
+
+def text_to_speech(text):
+    """Convert text to speech and return audio file"""
+    try:
+        tts = gTTS(text=text, lang="en")
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+            tts.save(tmp_file.name)
+            return tmp_file.name
+    except Exception as e:
+        st.error(f"Audio generation failed: {e}")
+        return None
+
+# Header
+st.title("🧠 Smart Flashcard Generator")
+
+# Layout
+col1, col2 = st.columns([1, 2])
+
+with col1:
+    st.subheader("Input")
+    
+    with st.form("text_form"):
+        text_input = st.text_area(
+            "Enter your study material:",
+            height=200,
+            placeholder="Paste your text here..."
+        )
         
-        st.success(f"Generated {len(sentences)} cards!")
+        num_cards = st.slider("Number of cards:", 1, 15, 8)
         
-        for i, sentence in enumerate(sentences):
-            if sentence:
-                st.write(f"**Card {i+1}:** {sentence}")
+        if st.form_submit_button("Generate Flashcards"):
+            if text_input.strip():
+                with st.spinner("Generating flashcards..."):
+                    flashcards = simple_generate_flashcards(text_input, num_cards)
+                    st.session_state.flashcards = flashcards
+                    st.session_state.current_index = 0
+                    st.success(f"Generated {len(flashcards)} flashcards!")
+            else:
+                st.warning("Please enter some text!")
+
+with col2:
+    if st.session_state.flashcards:
+        flashcards = st.session_state.flashcards
+        current_index = st.session_state.current_index
+        
+        keys = list(flashcards.keys())
+        values = list(flashcards.values())
+        
+        # Progress
+        progress = (current_index + 1) / len(flashcards)
+        st.progress(progress, text=f"Card {current_index + 1} of {len(flashcards)}")
+        
+        # Display card
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        ">
+            <div style="font-size: 1.2em; line-height: 1.6;">
+                {values[current_index]}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Controls
+        col_prev, col_audio, col_next = st.columns([1, 1, 1])
+        
+        with col_prev:
+            if st.button("⬅️ Previous", disabled=current_index == 0):
+                st.session_state.current_index -= 1
+                st.rerun()
+        
+        with col_audio:
+            if st.button("🔊 Audio"):
+                audio_file = text_to_speech(values[current_index])
+                if audio_file and os.path.exists(audio_file):
+                    with open(audio_file, "rb") as f:
+                        st.audio(f.read())
+                    os.unlink(audio_file)  # Clean up temp file
+        
+        with col_next:
+            if st.button("Next ➡️", disabled=current_index == len(flashcards) - 1):
+                st.session_state.current_index += 1
+                st.rerun()
+                
+        # Stats
+        with st.sidebar:
+            st.metric("Total Cards", len(flashcards))
+            st.metric("Current Position", current_index + 1)
+            st.metric("Words in Current Card", len(values[current_index].split()))
+            
     else:
-        st.warning("Please enter some text!")
+        st.info("👈 Enter text to generate flashcards")
+
+st.markdown("---")
+st.caption("Smart Flashcard Generator")
